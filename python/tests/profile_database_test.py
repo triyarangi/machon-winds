@@ -20,21 +20,15 @@ hi_sonde_profile = db.get_profile("HIRES", wmoId, test_date, minh, maxh, param)
 
 lo_sonde_profile = db.get_profile("LORES", wmoId, test_date, minh, maxh, param)
 
-print(wrf_profile.samples)
-print(hi_sonde_profile.samples)
-print(lo_sonde_profile.samples)
 
-rescaled_hi_profile = hi_sonde_profile.rescale(wrf_profile.samples.keys())
-rescaled_lo_profile = lo_sonde_profile.rescale(wrf_profile.samples.keys())
+rescaled_hi_profile = hi_sonde_profile.rescale(wrf_profile.heights)
+rescaled_lo_profile = lo_sonde_profile.rescale(wrf_profile.heights)
 
-print(wrf_profile.samples)
-print(rescaled_hi_profile.samples)
-print(rescaled_lo_profile.samples)
 
 
 
 plot_profile(
-    { "WRF WD(knot)" : wrf_profile.samples,
-      "HIRES WD(knot)" : rescaled_hi_profile.samples,
-      "LORES WD(knot)" : rescaled_lo_profile.samples
+    { "WRF WD(knot)" : wrf_profile,
+      "HIRES WD(knot)" : rescaled_hi_profile,
+      "LORES WD(knot)" : rescaled_lo_profile
      })

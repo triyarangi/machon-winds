@@ -1,80 +1,77 @@
-from python.profile_database import ProfileDatabase
 import datetime as dt
-import python.datasets.util as util
+import numpy as np
+
+from python.profile_database import ProfileDatabase
 from python.plot_profile import plot_profile
-from collections import OrderedDict
 
 ################################################
 # TEST
 
 
-
+# parameters:
 wmoId = 40179
 minh = 15000
 maxh = 25000
+
+# pick compared datasets:
+#
+# TODO: comparing sones won't work, since they have variable size
+model_label = "WRF" # WRF; TODO: ECMWF doesn't work yet
+sonde_label = "LORES" # LORES or HIRES
+
+# TODO: only those params are currently available:
 param = "wvel_knt"
 #param = "wdir_deg"
 
-db = ProfileDatabase()
-
+# date ranges:
 start_date = dt.datetime(2016,07,01,00,00)
-end_date = dt.datetime(2016,07,4,00,00)
+end_date = dt.datetime(2016,07,30,00,00)
+
+# fetch data handles:
+db = ProfileDatabase()
+ds1 = db.get_dataset(model_label, wmoId, minh, maxh, param)
+ds2 = db.get_dataset(sonde_label, wmoId, minh, maxh, param)
+
+
+# prepare arrays for statistics:
+sample_model_profile = db.get_profile(model_label, wmoId, start_date, minh, maxh, param)
+heights = sample_model_profile.heights
 
 count = 0
-bias = OrderedDict()
-mae = OrderedDict()
-rmse = OrderedDict()
+bias = np.zeros((len(heights)))
+mae = np.zeros((len(heights)))
+rmse = np.zeros((len(heights)))
 
-for sample_date in util.daterange(start_date, end_date):
+# iterate over the database and compute things:
+for (heights, model, sonde, curr_date) in db.iterator(ds1, ds2, start_date, end_date):
 
-    print("Processing %s" % sample_date)
-    try:
-        wrf_profile = db.get_profile("WRF", wmoId, sample_date, minh, maxh, param)
-    except IOError:
-        print ("Failed to read WRF data for %s" % sample_date)
-        continue
-#    try:
-#        hi_sonde_profile = db.get_profile("HIRES", wmoId, sample_date, minh, maxh, param)
-#    except IOError:
-#        print ("Failed to read HIRES data for %s" % sample_date)
-#        continue
-    try:
-        lo_sonde_profile = db.get_profile("LORES", wmoId, sample_date, minh, maxh, param)
-    except IOError:
-        print ("Failed to read LORES data for %s" % sample_date)
-        continue
+    print("Processing %s" % curr_date)
 
-#    rescaled_hi_profile = hi_sonde_profile.rescale(wrf_profile.samples.keys())
-    rescaled_lo_profile = lo_sonde_profile.rescale(wrf_profile.samples.keys())
+    model_values = model.values
+    sonde_values = sonde.values
 
-    print( "%s WRF %s" % (sample_date, wrf_profile.samples))
-    print( "%s LORES %s" % (sample_date, rescaled_lo_profile.samples))
+    delta = sonde_values - model_values
 
-    for hgt in wrf_profile.samples.iterkeys():
+    bias += delta
 
-        wrf_value = wrf_profile.samples[hgt]
-        sonde_value = rescaled_lo_profile.samples[hgt]
-
-        if wrf_value is None or sonde_value is None: continue
-
-        if not hgt in bias:
-            bias[hgt] = mae[hgt] = rmse[hgt] = 0
-
-        bias[hgt] += wrf_value - sonde_value
-        mae[hgt] += abs(wrf_value - sonde_value)
-        rmse[hgt] += (wrf_value - sonde_value)**2
+    mae += abs(delta)
+    rmse += delta**2
 
     count = count + 1
 
-for hgt in bias.iterkeys():
-    mae[hgt] = mae[hgt] / count
-    rmse[hgt] = (rmse[hgt] / count)**0.5
+# finalize computation:
+mae = mae / count
+rmse = (rmse / count)**0.5
 
-    print("%6dm : bias:%3.3f mae:%3.3f rmse:%3.3f" % (hgt, bias[hgt], mae[hgt], rmse[hgt]))
+# print results:
+for idx in range(len(bias)):
 
+    print("%6dm : bias:%3.3f mae:%3.3f rmse:%3.3f" % (heights[idx], bias[idx], mae[idx], rmse[idx]))
+
+# draw test comparison chart:
 plot_profile(
-    { "WRF WD(knot)" : wrf_profile.samples,
+    { "WRF WD(knot)" : model,
 #      "HIRES WD(knot)" : rescaled_hi_profile.samples,
-      "LORES WD(knot)" : rescaled_lo_profile.samples
+      "LORES WD(knot)" : sonde
      })
 

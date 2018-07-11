@@ -11,4 +11,6 @@ sonde_date = dt.datetime(2016,07,01,00,00)
 
 profile = sondeDataset.get_station_profile("40179", sonde_date, 15000, 25000, "pres_hpa")
 
-print( profile.samples )
+
+for idx,hgt in enumerate(profile.heights):
+    print("%dm : %f"%(hgt, profile.values[idx]))

@@ -1,5 +1,6 @@
 import os
 import datetime as dt
+import numpy as np
 from collections import OrderedDict
 
 import python.datasets.util
@@ -18,20 +19,28 @@ class WyomingSondeDataset:
     # get profile for specified station wmoid
     def get_station_profile(self, wmoid, datetime, minh, maxh, param):
 
+        # load sonde data:
         (samples, station) = self.load_sonde(wmoid, datetime)
 
-        profile = OrderedDict()
+        # convert to numpy arrays:
+        # calculate size:
+        size = 0
+        for hgt in samples.iterkeys():
+            if minh <= hgt <= maxh: size = size + 1
 
-        for key in samples.iterkeys():
-            sample = samples[key]
+        # create arrays:
+        hgts = np.zeros((size), dtype=float)
+        vals = np.zeros((size), dtype=float)
 
-            hght = sample["hght_msl_m"]
-
-            if minh <= hght <= maxh:
-                param_value = sample[param]
-                profile[hght] = param_value
-
-        return VerticalProfile(profile, station)
+        # fill arrays:
+        idx = 0
+        for hgt in samples.iterkeys():
+            if minh <= hgt <= maxh:
+                hgts[idx] = hgt
+                vals[idx] = samples[hgt][param]
+                idx = idx + 1
+        # providing resulting profile:
+        return VerticalProfile(hgts, vals, station)
 
 
     ################################################

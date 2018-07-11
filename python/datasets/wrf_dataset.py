@@ -42,43 +42,42 @@ class WRFDataset:
 
         elevation_grid = (ds.variables["PH"][:] + ds.variables["PHB"][:])/9.81
 
-        elevation_profile = elevation_grid[0,:,pi,pj]
+        all_hgts = elevation_grid[0,:,pi,pj]
 
         if param == "wvel_knt":
             ugrid = ds.variables["U"][:]
             vgrid = ds.variables["V"][:]
             uprofile = ugrid[0, :, pi, pj]
             vprofile = vgrid[0, :, pi, pj]
-            param_profile = (uprofile**2+vprofile**2)**0.5 * 1.94384
+            all_vals = (uprofile**2+vprofile**2)**0.5 * 1.94384
         elif param == "wdir_deg":
             ugrid = ds.variables["U"][:]
             vgrid = ds.variables["V"][:]
             uprofile = ugrid[0, :, pi, pj]
             vprofile = vgrid[0, :, pi, pj]
             # TODO : verify this conversion
-            param_profile = 270-np.rad2deg(np.arctan(vprofile/uprofile))
+            all_vals = 270-np.rad2deg(np.arctan(vprofile/uprofile))
         else:
             grid = ds.variables[param][:]
-            param_profile = grid[0,:,pi,pj]
+            all_vals = grid[0,:,pi,pj]
 
-        profile = OrderedDict()
-        for i in range(0, len(param_profile)):
+        size = 0
+        for hgt in all_hgts:
+            if minh <= hgt <= maxh: size = size +1
+        # convert to numpy arrays:
+        hgts = np.zeros((size),dtype=float)
+        vals = np.zeros((size),dtype=float)
 
-            h = elevation_profile[i]
-            if minh <= h <= maxh:
-                profile[round(elevation_profile[i])] = param_profile[i]
-
-        #for key,var in ds.variables.items():
-        #    desc = "<no desc>"
-        #    if hasattr(var, 'description') :
-        #        desc = var.description
-        #    print("%s - %s" % (var.name, desc))
-
-        #print "%d %d" % (plat, plon)
+        idx = 0
+        for all_idx, hgt in enumerate(all_hgts):
+            if minh <= hgt <= maxh:
+                hgts[idx] = hgt
+                vals[idx] = all_vals[all_idx]
+                idx = idx + 1
 
         station = WeatherStation(-1, lat, lon, 0)
 
-        return VerticalProfile(profile, station)
+        return VerticalProfile(hgts, vals, station)
 
     def create_filename(self, datetime):
         return self.dataset_dir + "/" + datetime.strftime("%Y%m%d%H") \

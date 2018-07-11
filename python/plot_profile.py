@@ -7,14 +7,8 @@ def plot_profile( profiles ):
     for label in profiles.iterkeys():
         profile = profiles.get(label)
 
-        keys = []
-        values = []
-
-        for key, value in profile.iteritems():
-            keys.append(key)
-            values.append(value)
-
-        plt.plot( values, keys,label=label)
+        print(label)
+        plt.plot( profile.values, profile.heights, label=label)
 
     plt.legend(loc='best')
     plt.show()

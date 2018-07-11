@@ -4,6 +4,7 @@ from collections import OrderedDict
 from python.vertical_profile import VerticalProfile
 import archive_config
 
+import numpy as np
 
 import datetime as dt
 
@@ -27,17 +28,24 @@ class BeitDaganSondeDataset:
         filename = archive_config.highres_sonde_dir + "/" + \
                    date.strftime("%Y%m%d%H") + "_physical"
 
-        sonde_data = self.read_sonde( filename )
+        (samples, station) = self.read_sonde( filename )
 
-        param_dict = OrderedDict()
+        size = 0
+        for hgt in samples.iterkeys():
+            if minh <= hgt <= maxh: size = size +1
+        # convert to numpy arrays:
+        hgts = np.zeros((size),dtype=float)
+        vals = np.zeros((size),dtype=float)
 
-        for hght_msl_m in sonde_data.samples.iterkeys():
+        idx = 0
+        for hgt in samples.iterkeys():
+            if minh <= hgt <= maxh:
+                hgts[idx] = hgt
+                vals[idx] = samples[hgt][param]
+                idx = idx+1
 
-            if minh <= hght_msl_m <= maxh:
-                sample = sonde_data.samples[hght_msl_m]
-                param_dict[hght_msl_m] = sample[param]
 
-        return VerticalProfile(param_dict, sonde_data.station)
+        return VerticalProfile(hgts, vals, station)
 
 
     ################################################
@@ -96,10 +104,10 @@ class BeitDaganSondeDataset:
 
                     }
 
-                    samples[round(sample["hght_msl_m"])] = sample
+                    samples[sample["hght_msl_m"]] = sample
 
                     line = file.readline()
 
             sonde_data = samples
 
-        return VerticalProfile(sonde_data, station)
+        return (sonde_data, station)

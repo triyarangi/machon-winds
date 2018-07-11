@@ -1,5 +1,5 @@
 from collections import OrderedDict
-
+import numpy as np
 ################################################
 # This class defines a vertical profile
 #
@@ -8,8 +8,9 @@ from collections import OrderedDict
 class VerticalProfile:
 
 
-    def __init__(self, samples, station):
-        self.samples = samples
+    def __init__(self, hgts, vals, station):
+        self.heights = hgts
+        self.values = vals
         self.station = station
 
 
@@ -17,7 +18,7 @@ class VerticalProfile:
     # interpolate or integrate sonde data to them
     def rescale(self, levels_msl_m):
 
-        rescaled_samples = OrderedDict()
+        rescaled_values = np.zeros((len(levels_msl_m)))
 
         for i in range(0, len(levels_msl_m)-0):
 
@@ -36,43 +37,47 @@ class VerticalProfile:
                 high_level = (levels_msl_m[i+1]+curr_level)/2
 
             range_samples = []
-            for (sonde_level, sonde_sample) in self.samples.iteritems():
-                if high_level >= sonde_level >= low_level:
-                    range_samples.append(sonde_sample)
+            for (idx, hgt) in enumerate(self.heights):
+                if high_level >= hgt >= low_level:
+                    range_samples.append(self.values[idx])
 
-            rescaled_sample = None
             if len(range_samples) >= 2:
-                rescaled_sample = self.integrate( range_samples )
+                rescaled_values[i] = self.integrate( range_samples )
             else:
-                rescaled_sample = self.interpolate( curr_level )
-            rescaled_samples[curr_level] = rescaled_sample
+                rescaled_values[i] = self.interp( curr_level )
 
-        return VerticalProfile(rescaled_samples, self.station)
+        return VerticalProfile(levels_msl_m, rescaled_values, self.station)
 
 
     def integrate(self, samples ):
 
         return sum(samples)/len(samples)
 
-    def interpolate(self, x):
+    def interp(self, x):
         x0 = None
         y0 = None
         x1 = None
         y1 = None
-        for (sonde_level, sonde_sample) in self.samples.iteritems():
-            if sonde_level == x:
-                return sonde_sample
-            if sonde_level > x:
-                x0 = sonde_level
-                y0 = sonde_sample
+        for (idx, hgt) in enumerate(self.heights):
+            value = self.values[idx]
+            if hgt == x:
+                return value
+            if hgt > x:
+                x0 = hgt
+                y0 = value
             else:
-                x1 = sonde_level
-                y1 = sonde_sample
+                x1 = hgt
+                y1 = value
                 break
 
-        if x0 is None or x1 is None: return None
+        if x0 is None and x1 is None: return None
+        if x0 is None: return y1
+        if x1 is None: return y0
 
         y = y0 + (x - x0)*(y1-y0)/(x1-x0)
 
         return y
+
+    def interpolate(self, levels_msl_m):
+        return VerticalProfile(levels_msl_m, np.interp(levels_msl_m, self.heights, self.values), self.station)
 
