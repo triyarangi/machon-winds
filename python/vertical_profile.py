@@ -68,10 +68,9 @@ class VerticalProfile:
             else:
                 x1 = sonde_level
                 y1 = sonde_sample
+                break
 
-        if x0 is None and x1 is None: return None
-        if x0 is None: return x1
-        if x1 is None: return x0
+        if x0 is None or x1 is None: return None
 
         y = y0 + (x - x0)*(y1-y0)/(x1-x0)
 

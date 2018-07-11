@@ -66,7 +66,7 @@ class WRFDataset:
 
             h = elevation_profile[i]
             if minh <= h <= maxh:
-                profile[elevation_profile[i]] = param_profile[i]
+                profile[round(elevation_profile[i])] = param_profile[i]
 
         #for key,var in ds.variables.items():
         #    desc = "<no desc>"

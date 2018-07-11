@@ -68,7 +68,10 @@ class BeitDaganSondeDataset:
             surface_relh = float(file.readline().split(":")[1].split()[0])
             surface_wdir_deg = float(file.readline().split(":")[1].split()[0])
             surface_wvel_knt = float(file.readline().split(":")[1].split()[0])
-            cloud_code = float(file.readline().split(":")[1].split()[0])
+            try:
+                cloud_code = float(file.readline().split(":")[1].split()[0])
+            except ValueError:
+                cloud_code = -1
             station_number = int(file.readline().split(":")[1].split()[0])
             station_icao = file.readline().split(":")[1].split()[0]
 
@@ -93,7 +96,7 @@ class BeitDaganSondeDataset:
 
                     }
 
-                    samples[sample["hght_msl_m"]] = sample
+                    samples[round(sample["hght_msl_m"])] = sample
 
                     line = file.readline()
 
