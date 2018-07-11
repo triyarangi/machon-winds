@@ -11,6 +11,7 @@ wmoId = 40179
 minh = 15000
 maxh = 25000
 param = "wvel_knt"
+#param = "wdir_deg"
 
 db = ProfileDatabase()
 wrf_profile = db.get_profile("WRF", wmoId, test_date, minh, maxh, param)
