@@ -47,7 +47,10 @@ class WyomingSondeDataset:
     # initialize dataset
     def __init__(self):
 
-       self.datasetDir = archive_config.wyoming_sonde_dir
+        self.datasetDir = archive_config.wyoming_sonde_dir
+
+        if not os.path.isdir(self.datasetDir):
+            raise IOError("Cannot file sonde data folder %s" % self.datasetDir)
 
     ################################################
     # load sonde for specified date and station id

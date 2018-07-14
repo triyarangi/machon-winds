@@ -1,5 +1,6 @@
 import datetime as dt
 import numpy as np
+import os.path
 import math
 from collections import OrderedDict
 
@@ -16,6 +17,8 @@ class WRFDataset:
 
     def __init__(self):
 
+        if not os.path.isdir(self.dataset_dir):
+            raise IOError("Cannot file WRF data folder %s" % self.dataset_dir)
         sample_path = self.create_filename( dt.datetime(2016,07,01,00,00) )
 
         sample_ds = python.datasets.util.load_dataset(sample_path)

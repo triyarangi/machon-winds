@@ -1,3 +1,5 @@
+import os.path
+
 import python.datasets.util
 from python.station import WeatherStation
 from collections import OrderedDict
@@ -18,6 +20,8 @@ class BeitDaganSondeDataset:
     def __init__(self):
 
         self.files = []
+        if not os.path.isdir(archive_config.highres_sonde_dir):
+            raise IOError("Cannot file sonde data folder %s" % archive_config.highres_sonde_dir)
 
     ################################################
     # Retrieve a sonde from specified date
