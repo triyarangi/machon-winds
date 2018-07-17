@@ -3,6 +3,7 @@ import datasets.ecmwf_dataset as ecmwf
 import datasets.beitdagan_sonde_dataset as beitdagan_sonde
 import datasets.wyoming_sonde_dataset as wyoming_sonde
 import python.datasets.stations_list as stations_list
+import numpy as np
 
 import datetime as dt
 
@@ -28,9 +29,9 @@ class ProfileDatabase:
             elif "LORES" == dataset_label:
                 return self.coarse_sonde.get_station_profile(station.wmoid, datetime, minh, maxh, param)
 
-        except (IOError, AttributeError, ValueError) as (errno, strerror):
+        except (IOError, AttributeError, ValueError):# as (errno, strerror):
             print ("Failed to read %s data for %s" % (dataset_label, datetime))
-            print ("%s" % strerror)
+            #print ("%s" % strerror)
             return None
 
     def get_profiles(self, dataset_label, stations, datetime, minh, maxh, param):
@@ -54,8 +55,8 @@ class ProfileDatabase:
     def get_dataset(self, dataset_label, minh, maxh, param):
         return ProfileDataset(self, dataset_label, minh, maxh, param)
 
-    def iterator(self, ds1, ds2, station, min_date, max_date):
-        return Iterator(ds1, ds2, station, min_date, max_date)
+    def iterator(self, ds1, ds2, height, station, min_date, max_date):
+        return Iterator(ds1, ds2, height, station, min_date, max_date)
 
 class ProfileDataset:
 
@@ -74,10 +75,11 @@ class ProfileDataset:
         return self.db.get
 
 class Iterator:
-    def __init__(self, ds1, ds2, station, min_date, max_date):
+    def __init__(self, ds1, ds2, heights, station, min_date, max_date):
 
         self.ds1 = ds1
         self.ds2 = ds2
+        self.heights = heights
         self.station = station
         self.min_date = min_date
         self.max_date = max_date
@@ -100,11 +102,21 @@ class Iterator:
                 if p1 is None or p2 is None:
                     continue
 
-                p2 = p2.interpolate(p1.heights)
+                # skipping invalid sonde:
+                skip = 0
+                for il in range(len(p2.heights)):
+                    if np.isnan(p2.values[il]):
+                        skip = skip + 1
+
+                if skip >= (len(p2.heights)) * 0.5:
+                    continue
+
+                p1 = p1.interpolate(self.heights)
+                p2 = p2.interpolate(self.heights)
 
                 break
 
             if self.curr_date > self.max_date:
                 raise StopIteration
 
-            return p1.heights, p1, p2, prev_date
+            return self.heights, p1, p2, prev_date
