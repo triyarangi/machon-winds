@@ -133,7 +133,7 @@ for idx in range(len(wvel_bias)):
 #      "LORES WD(knot)" : sonde
 #     })
 
-title = "Comparison for %s, station %s" % (curr_date, station.wmoid)
+title = "Errors for %s, station %s" % (curr_date, station.wmoid)
 plot_profile({
       "wvel_mae": VerticalProfile(heights, wvel_mae, station),
       "wvel_rmse": VerticalProfile(heights, wvel_rmse, station)
@@ -143,7 +143,7 @@ plot_profile({
     }, outdir, title)
 # save figure
 
-title = "Errors for %s to %s, station %s" % (start_date, end_date, station.wmoid)
+title = "Means for %s to %s, station %s" % (start_date, end_date, station.wmoid)
 plot_profile(    
     { "wvel_avg_model": VerticalProfile(heights, wvel_mean_model, station),
       "wvel_avg_sonde": VerticalProfile(heights, wvel_mean_sonde, station)
@@ -209,7 +209,7 @@ wdir_rmse = (wdir_rmse / count) ** 0.5
 wdir_var_model = (wdir_var_model / count) ** 0.5
 wdir_var_sonde = (wdir_var_sonde / count) ** 0.5
 
-title = "Comparison for %s, station %s" % (curr_date, station.wmoid)
+title = "Errors for %s, station %s" % (curr_date, station.wmoid)
 plot_profile({
       "wdir_mae": VerticalProfile(heights, wdir_mae, station),
       "wdir_rmse": VerticalProfile(heights, wdir_rmse, station)
@@ -219,7 +219,7 @@ plot_profile({
     }, outdir, title)
 # save figure
 
-title = "Errors for %s to %s, station %s" % (start_date, end_date, station.wmoid)
+title = "Means for %s to %s, station %s" % (start_date, end_date, station.wmoid)
 plot_profile(
     { "wdir_avg_model": VerticalProfile(heights, wdir_mean_model, station),
       "wdir_avg_sonde": VerticalProfile(heights, wdir_mean_sonde, station)
