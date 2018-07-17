@@ -19,10 +19,16 @@ class WRFDataset:
 
         if not os.path.isdir(self.dataset_dir):
             raise IOError("Cannot file WRF data folder %s" % self.dataset_dir)
-        sample_path = self.create_filename( dt.datetime(2016,07,01,00,00) )
 
-        sample_ds = python.datasets.util.load_dataset(sample_path)
+        # pick a sample file
+        sample_ds = None
+        for subdir, dirs, files in os.walk(self.dataset_dir):
+            for file in files:
+                sample_ds = python.datasets.util.load_dataset(os.path.join(subdir, file))
+            if sample_ds is not None:
+                break
 
+        # create map of WRF points:
         lons = sample_ds.variables['XLONG'][:]
         lats = sample_ds.variables['XLAT'][:]
 
@@ -34,6 +40,14 @@ class WRFDataset:
     def get_station_profile(self, station, datetime, minh, maxh, param):
 
         return self.get_profile( station.lat, station.lon, datetime, minh, maxh, param)
+
+    def get_profiles(self, stations, datetime, minh, maxh, param):
+
+        profiles = {}
+        for station in stations:
+            station_profile = self.get_profile( station.lat, station.lon, datetime, minh, maxh, param)
+            profiles[station] = station_profile
+        return profiles
 
     def get_profile(self, lat, lon, datetime, minh, maxh, param):
 

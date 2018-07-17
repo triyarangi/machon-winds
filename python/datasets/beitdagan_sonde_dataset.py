@@ -23,6 +23,15 @@ class BeitDaganSondeDataset:
         if not os.path.isdir(archive_config.highres_sonde_dir):
             raise IOError("Cannot file sonde data folder %s" % archive_config.highres_sonde_dir)
 
+    def get_profiles(self, stations, datetime, minh, maxh, param):
+
+        profiles = {}
+        for station in stations:
+            if station.wmoid == 40179:
+                station_profile = self.get_profile(station.wmoid, datetime, minh, maxh, param)
+                profiles[station] = station_profile
+        return profiles
+
     ################################################
     # Retrieve a sonde from specified date
     #

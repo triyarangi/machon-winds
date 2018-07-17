@@ -42,6 +42,14 @@ class WyomingSondeDataset:
         # providing resulting profile:
         return VerticalProfile(hgts, vals, station)
 
+    def get_profiles(self, stations, datetime, minh, maxh, param):
+
+        profiles = {}
+        for station in stations:
+            station_profile = self.get_profile( station.wmoid, datetime, minh, maxh, param)
+            profiles[station] = station_profile
+        return profiles
+
 
     ################################################
     # initialize dataset
