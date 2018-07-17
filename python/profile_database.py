@@ -16,6 +16,21 @@ class ProfileDatabase:
         self.fine_sonde = beitdagan_sonde.BeitDaganSondeDataset()
         self.coarse_sonde = wyoming_sonde.WyomingSondeDataset()
 
+    def get_heights(self, minh, maxh):
+        size = 0
+        for hgt in self.wrf_dataset.all_hgts:
+            if minh <= hgt <= maxh: size = size +1
+        # convert to numpy arrays:
+        hgts = np.zeros((size),dtype=float)
+
+        idx = 0
+        for all_idx, hgt in enumerate(self.wrf_dataset.all_hgts):
+            if minh <= hgt <= maxh:
+                hgts[idx] = hgt
+                idx = idx + 1
+
+        return hgts
+
     def get_profile(self, dataset_label, station, datetime, minh, maxh, param):
 
         try:
@@ -67,6 +82,8 @@ class ProfileDataset:
         self.minh = minh
         self.maxh = maxh
         self.param = param
+
+
 
     def get_profile(self, datetime, station):
         return self.db.get_profile(self.dataset_label, station, datetime, self.minh, self.maxh, self.param)

@@ -28,6 +28,9 @@ class WRFDataset:
             if sample_ds is not None:
                 break
 
+        elevation_grid = (sample_ds.variables["PH"][:] + sample_ds.variables["PHB"][:]) / 9.81
+        self.all_hgts = elevation_grid[0,:,0,0]
+
         # create map of WRF points:
         lons = sample_ds.variables['XLONG'][:]
         lats = sample_ds.variables['XLAT'][:]
