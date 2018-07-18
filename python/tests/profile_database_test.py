@@ -1,6 +1,8 @@
 from python.profile_database import ProfileDatabase
 import datetime as dt
+import python.datasets.stations_list as stations_list
 from python.plot_profile import plot_profile
+from python.vertical_profile import VerticalProfile
 
 ################################################
 # TEST
@@ -8,27 +10,30 @@ from python.plot_profile import plot_profile
 test_date = dt.datetime(2016,07,01,00,00)
 
 wmoId = 40179
+station = stations_list.stations[wmoId]
+stations = [ station ]
 minh = 15000
 maxh = 25000
-param = "wvel_knt"
+params = ["wvel_knt", "wdir_deg", "u_knt", "v_knt", "pres_hpa"]
 #param = "wdir_deg"
 
 db = ProfileDatabase()
-wrf_profile = db.get_profile("WRF", wmoId, test_date, minh, maxh, param)
+wrf_profile = db.get_profile("WRF", station, test_date, minh, maxh, params)
 
-hi_sonde_profile = db.get_profile("HIRES", wmoId, test_date, minh, maxh, param)
+hi_sonde_profile = db.get_profile("HIRES", station, test_date, minh, maxh, params)
 
-lo_sonde_profile = db.get_profile("LORES", wmoId, test_date, minh, maxh, param)
+lo_sonde_profile = db.get_profile("LORES", station, test_date, minh, maxh, params)
 
 
-rescaled_hi_profile = hi_sonde_profile.rescale(wrf_profile.heights)
-rescaled_lo_profile = lo_sonde_profile.rescale(wrf_profile.heights)
+rescaled_hi_profile = hi_sonde_profile.interpolate(wrf_profile.heights)
+rescaled_lo_profile = lo_sonde_profile.interpolate(wrf_profile.heights)
 
 
 
 
 plot_profile(
-    { "WRF WD(knot)" : wrf_profile,
-      "HIRES WD(knot)" : rescaled_hi_profile,
-      "LORES WD(knot)" : rescaled_lo_profile
-     })
+    VerticalProfile(wrf_profile.heights,
+        {   "WRF WD(knot)" : wrf_profile.values["wvel_knt"],
+            "HIRES WD(knot)" : rescaled_hi_profile.values["wvel_knt"],
+            "LORES WD(knot)" : rescaled_lo_profile.values["wvel_knt"]}, station),
+        None, None, title="")

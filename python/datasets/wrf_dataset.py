@@ -52,7 +52,7 @@ class WRFDataset:
             profiles[station] = station_profile
         return profiles
 
-    def get_profile(self, lat, lon, datetime, minh, maxh, param):
+    def get_profile(self, lat, lon, datetime, minh, maxh, params):
 
         path = self.create_filename( datetime )
 
@@ -64,35 +64,51 @@ class WRFDataset:
 
         all_hgts = elevation_grid[0,:,pi,pj]
 
-        if param == "wvel_knt":
-            ugrid = ds.variables["U"][:]
-            vgrid = ds.variables["V"][:]
-            uprofile = ugrid[0, :, pi, pj]
-            vprofile = vgrid[0, :, pi, pj]
-            all_vals = (uprofile**2+vprofile**2)**0.5 * 1.94384
-        elif param == "wdir_deg":
-            ugrid = ds.variables["U"][:]
-            vgrid = ds.variables["V"][:]
-            uprofile = ugrid[0, :, pi, pj]
-            vprofile = vgrid[0, :, pi, pj]
-            # TODO : verify this conversion
-            all_vals = 270-np.rad2deg(np.arctan(vprofile/uprofile))
-        else:
-            grid = ds.variables[param][:]
-            all_vals = grid[0,:,pi,pj]
+        all_vals = {}
+
+        for param in params:
+            if param == "wvel_knt":
+                ugrid = ds.variables["U"][:]
+                vgrid = ds.variables["V"][:]
+                uprofile = ugrid[0, :, pi, pj]
+                vprofile = vgrid[0, :, pi, pj]
+                all_vals[param] = (uprofile**2+vprofile**2)**0.5 * 1.94384
+            elif param == "wdir_deg":
+                ugrid = ds.variables["U"][:]
+                vgrid = ds.variables["V"][:]
+                uprofile = ugrid[0, :, pi, pj]
+                vprofile = vgrid[0, :, pi, pj]
+                # TODO : verify this conversion
+                all_vals[param] = 270-np.rad2deg(np.arctan(vprofile/uprofile))
+            elif param == "u_knt":
+                ugrid = ds.variables["U"][:]
+                all_vals[param] = ugrid[0, :, pi, pj]
+            elif param == "v_knt":
+                ugrid = ds.variables["V"][:]
+                all_vals[param] = ugrid[0, :, pi, pj]
+            elif param == "pres_hpa":
+                ugrid = ds.variables["P"][:]
+                all_vals[param] = ugrid[0, :, pi, pj]/100.0
+
+            else:
+                grid = ds.variables[param][:]
+                all_vals[param] = grid[0,:,pi,pj]
 
         size = 0
         for hgt in all_hgts:
             if minh <= hgt <= maxh: size = size +1
         # convert to numpy arrays:
         hgts = np.zeros((size),dtype=float)
-        vals = np.zeros((size),dtype=float)
+        vals = {}
+        for param in params:
+            vals[param] = np.zeros((size), dtype=float)
 
         idx = 0
         for all_idx, hgt in enumerate(all_hgts):
             if minh <= hgt <= maxh:
                 hgts[idx] = hgt
-                vals[idx] = all_vals[all_idx]
+                for param in params:
+                    vals[param][idx] = all_vals[param][all_idx]
                 idx = idx + 1
 
         station = WeatherStation(-1, lat, lon, 0)

@@ -79,5 +79,17 @@ class VerticalProfile:
         return y
 
     def interpolate(self, levels_msl_m):
-        return VerticalProfile(levels_msl_m, np.interp(levels_msl_m, self.heights, self.values), self.station)
+        interpvals = {}
+        for param in self.values.iterkeys():
+            skip = 0
+            for il in range(len(self.heights)):
+                if np.isnan(self.values[param][il]):
+                    skip = skip + 1
+
+            if skip >= (len(self.heights)) * 0.5:
+                interpvals[param] = None
+            else:
+                interpvals[param] = np.interp(levels_msl_m, self.heights, self.values[param])
+
+        return VerticalProfile(levels_msl_m, interpvals, self.station)
 

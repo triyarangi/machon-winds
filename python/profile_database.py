@@ -31,22 +31,22 @@ class ProfileDatabase:
 
         return hgts
 
-    def get_profile(self, dataset_label, station, datetime, minh, maxh, param):
+    def get_profile(self, dataset_label, station, datetime, minh, maxh, params):
 
         try:
             #
             if "WRF" == dataset_label:
-                return self.wrf_dataset.get_station_profile( station, datetime, minh, maxh, param)
+                return self.wrf_dataset.get_station_profile( station, datetime, minh, maxh, params)
             elif "ECMWF" == dataset_label:
-                return self.ecmwf_dataset.get_station_profile( station, datetime, minh, maxh, param)
+                return self.ecmwf_dataset.get_station_profile( station, datetime, minh, maxh, params)
             elif "HIRES" == dataset_label:
-                return self.fine_sonde.get_profile( datetime, minh, maxh, param)
+                return self.fine_sonde.get_profile( datetime, minh, maxh, params)
             elif "LORES" == dataset_label:
-                return self.coarse_sonde.get_station_profile(station.wmoid, datetime, minh, maxh, param)
+                return self.coarse_sonde.get_station_profile(station.wmoid, datetime, minh, maxh, params)
 
-        except (IOError, AttributeError, ValueError):# as (errno, strerror):
+        except (IOError, AttributeError, ValueError) as (strerror):
             print ("Failed to read %s data for %s" % (dataset_label, datetime))
-            #print ("%s" % strerror)
+            print ("%s" % strerror)
             return None
 
     def get_profiles(self, dataset_label, stations, datetime, minh, maxh, param):
@@ -67,26 +67,26 @@ class ProfileDatabase:
             return None
 
 
-    def get_dataset(self, dataset_label, minh, maxh, param):
-        return ProfileDataset(self, dataset_label, minh, maxh, param)
+    def get_dataset(self, dataset_label, minh, maxh, params):
+        return ProfileDataset(self, dataset_label, minh, maxh, params)
 
     def iterator(self, ds1, ds2, height, station, min_date, max_date):
         return Iterator(ds1, ds2, height, station, min_date, max_date)
 
 class ProfileDataset:
 
-    def __init__(self, db, dataset_label, minh, maxh, param):
+    def __init__(self, db, dataset_label, minh, maxh, params):
         self.db = db
         self.dataset_label = dataset_label
 
         self.minh = minh
         self.maxh = maxh
-        self.param = param
+        self.params = params
 
 
 
     def get_profile(self, datetime, station):
-        return self.db.get_profile(self.dataset_label, station, datetime, self.minh, self.maxh, self.param)
+        return self.db.get_profile(self.dataset_label, station, datetime, self.minh, self.maxh, self.params)
 
     def get_profiles(self, datetime, stations):
         return self.db.get
@@ -120,14 +120,6 @@ class Iterator:
                     continue
 
                 # skipping invalid sonde:
-                skip = 0
-                for il in range(len(p2.heights)):
-                    if np.isnan(p2.values[il]):
-                        skip = skip + 1
-
-                if skip >= (len(p2.heights)) * 0.5:
-                    continue
-
                 p1 = p1.interpolate(self.heights)
                 p2 = p2.interpolate(self.heights)
 

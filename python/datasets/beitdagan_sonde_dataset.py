@@ -5,6 +5,7 @@ from python.station import WeatherStation
 from collections import OrderedDict
 from python.vertical_profile import VerticalProfile
 import archive_config
+import math
 
 import numpy as np
 
@@ -35,7 +36,7 @@ class BeitDaganSondeDataset:
     ################################################
     # Retrieve a sonde from specified date
     #
-    def get_profile(self, date, minh, maxh, param):
+    def get_profile(self, date, minh, maxh, params):
 
         # create filename:
         filename = archive_config.highres_sonde_dir + "/" + \
@@ -48,13 +49,21 @@ class BeitDaganSondeDataset:
             if minh <= hgt <= maxh: size = size +1
         # convert to numpy arrays:
         hgts = np.zeros((size),dtype=float)
-        vals = np.zeros((size),dtype=float)
+        vals = {}
+        for param in params:
+            vals[param] = np.zeros((size), dtype=float)
 
         idx = 0
         for hgt in samples.iterkeys():
             if minh <= hgt <= maxh:
                 hgts[idx] = hgt
-                vals[idx] = samples[hgt][param]
+                for param in params:
+                    if param == 'u_knt':
+                        vals[param][idx] = samples[hgt]["wvel_knt"] * math.cos(math.radians(samples[hgt]["wdir_deg"]))
+                    elif param == 'v_knt':
+                        vals[param][idx] = samples[hgt]["wvel_knt"] * math.sin(math.radians(samples[hgt]["wdir_deg"]))
+                    else:
+                        vals[param][idx] = samples[hgt][param]
                 idx = idx+1
 
 

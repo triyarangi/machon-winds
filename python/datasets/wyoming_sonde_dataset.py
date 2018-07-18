@@ -2,6 +2,7 @@ import os
 import datetime as dt
 import numpy as np
 from collections import OrderedDict
+import math
 
 import python.datasets.util
 from python.station import WeatherStation
@@ -17,7 +18,7 @@ class WyomingSondeDataset:
 
     ################################################
     # get profile for specified station wmoid
-    def get_station_profile(self, wmoid, datetime, minh, maxh, param):
+    def get_station_profile(self, wmoid, datetime, minh, maxh, params):
 
         # load sonde data:
         (samples, station) = self.load_sonde(wmoid, datetime)
@@ -30,14 +31,24 @@ class WyomingSondeDataset:
 
         # create arrays:
         hgts = np.zeros((size), dtype=float)
-        vals = np.zeros((size), dtype=float)
+        vals = {}
+        for param in params:
+            vals[param] = np.zeros((size), dtype=float)
 
         # fill arrays:
         idx = 0
         for hgt in samples.iterkeys():
             if minh <= hgt <= maxh:
                 hgts[idx] = hgt
-                vals[idx] = samples[hgt][param]
+                for param in params:
+                    if param == 'u_knt':
+                        vals[param][idx] = samples[hgt]["wvel_knt"] * math.cos(math.radians(samples[hgt]["wdir_deg"]))
+                    elif param == 'v_knt':
+                        vals[param][idx] = samples[hgt]["wvel_knt"] * math.sin(math.radians(samples[hgt]["wdir_deg"]))
+                    else:
+                        vals[param][idx] = samples[hgt][param]
+
+
                 idx = idx + 1
         # providing resulting profile:
         return VerticalProfile(hgts, vals, station)
