@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import datetime as dt
 import numpy as np
-import os as os
 import os.path
 
 from python.profile_database import ProfileDatabase
@@ -29,7 +28,7 @@ model_label = "WRF" # WRF; TODO: ECMWF doesn't work yet
 sonde_label = "LORES" # LORES or HIRES
 
 # TODO: only those params are currently available:
-params = ["wvel_knt", "wdir_deg", "u_knt", "v_knt", "pres_hpa"]
+params = ["wvel_knt", "wdir_deg", "u_knt", "v_knt"]
 # param = "wdir_deg"
 
 # date ranges:
@@ -94,7 +93,10 @@ for (heights, model, sonde, curr_date) in profiles.values():
         if model_values is None or sonde_values is None:
             continue
 
-        delta = sonde_values - model_values
+        if param == "wdir_deg":
+            delta = 180 - np.abs(np.abs(model_values - sonde_values) - 180)
+        else:
+            delta = sonde_values - model_values
 
         bias[param] += delta
 
@@ -120,11 +122,17 @@ for (heights, model, sonde, curr_date) in profiles.values():
         sonde_values = sonde.values[param]  # type: np array
         if model_values is None or sonde_values is None:
             continue
-        model_var[param] += (model_mean[param] - model_values)**2
-        sonde_var[param] += (sonde_mean[param] - sonde_values)**2
+
+        if param == "wdir_deg":
+            model_delta = 180 - np.abs(np.abs(model_mean[param] - sonde_values) - 180)
+            sonde_delta = 180 - np.abs(np.abs(sonde_mean[param] - sonde_values) - 180)
+        else:
+            model_delta = model_mean[param] - model_values
+            sonde_delta = sonde_mean[param] - sonde_values
+
+        model_var[param] += model_delta**2
+        sonde_var[param] += sonde_delta**2
     count = count + 1
-
-
 
 # finalize computation:
 for param in params:
@@ -135,6 +143,9 @@ for param in params:
     model_var[param] = (model_var[param] / count)**0.5
     sonde_var[param] = (sonde_var[param] / count)**0.5
 
+
+wdir_deg_model_mean = 270-np.rad2deg(np.arctan(model_mean["v_knt"]/model_mean["u_knt"]))
+wdir_deg_sonde_mean = 270-np.rad2deg(np.arctan(sonde_mean["v_knt"]/sonde_mean["u_knt"]))
 
 # print number of events :
 print 'number of days = ',count
@@ -174,4 +185,13 @@ for draw_param in params:
            draw_param + " sonde variance": sonde_var[draw_param]
         }, station),
         None, outdir, title)
+
+plot_profile(
+    VerticalProfile(heights, {
+       "Model angular dir": model_mean["wdir_deg"],
+       "Model UV dir": wdir_deg_model_mean,
+        "Sonde angular dir": sonde_mean["wdir_deg"],
+        "Sonde UV dir": wdir_deg_sonde_mean
+    }, station),
+    None, outdir, "")
 

@@ -84,11 +84,11 @@ class WRFDataset:
                 ugrid = ds.variables["U"][:]
                 all_vals[param] = ugrid[0, :, pi, pj]
             elif param == "v_knt":
-                ugrid = ds.variables["V"][:]
-                all_vals[param] = ugrid[0, :, pi, pj]
+                vgrid = ds.variables["V"][:]
+                all_vals[param] = vgrid[0, :, pi, pj]
             elif param == "pres_hpa":
-                ugrid = ds.variables["P"][:]
-                all_vals[param] = ugrid[0, :, pi, pj]/100.0
+                pgrid = ds.variables["P"][:]
+                all_vals[param] = pgrid[0, :, pi, pj]/100.0
 
             else:
                 grid = ds.variables[param][:]
