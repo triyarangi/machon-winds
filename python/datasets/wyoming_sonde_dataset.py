@@ -34,6 +34,7 @@ class WyomingSondeDataset:
         vals = {}
         for param in params:
             vals[param] = np.zeros((size), dtype=float)
+            vals[param][:] = np.nan
 
         # fill arrays:
         idx = 0

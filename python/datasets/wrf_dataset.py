@@ -102,6 +102,7 @@ class WRFDataset:
         vals = {}
         for param in params:
             vals[param] = np.zeros((size), dtype=float)
+            vals[param][:] = np.nan
 
         idx = 0
         for all_idx, hgt in enumerate(all_hgts):

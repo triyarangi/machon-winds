@@ -52,6 +52,7 @@ class BeitDaganSondeDataset:
         vals = {}
         for param in params:
             vals[param] = np.zeros((size), dtype=float)
+            vals[param][:] = np.nan
 
         idx = 0
         for hgt in samples.iterkeys():
