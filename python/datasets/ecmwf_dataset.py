@@ -10,7 +10,7 @@ class ECMWFDataset:
             raise IOError("Cannot file ECMWF data folder %s" % archive_config.ecmwf_dir)
         self.index = {}
 
-        #ds = python.datasets.util.load_dataset(archive_config.ecmwf_dir + "\\IS_201607_1.grb")
+        #ds = python.datasets.util.load_dataset(archive_config.ecmwf_dir + "//IS_201607_1.grb")
 
        #print ds
 

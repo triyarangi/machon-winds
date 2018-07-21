@@ -72,14 +72,24 @@ class WRFDataset:
                 vgrid = ds.variables["V"][:]
                 uprofile = ugrid[0, :, pi, pj]
                 vprofile = vgrid[0, :, pi, pj]
-                all_vals[param] = (uprofile**2+vprofile**2)**0.5 * 1.94384
+                all_vals[param] = (uprofile**2+vprofile**2)**0.5 * 1.94384  # from m/s to knot
             elif param == "wdir_deg":
                 ugrid = ds.variables["U"][:]
                 vgrid = ds.variables["V"][:]
                 uprofile = ugrid[0, :, pi, pj]
                 vprofile = vgrid[0, :, pi, pj]
+                 
+                
                 # TODO : verify this conversion
-                all_vals[param] = 270-np.rad2deg(np.arctan(vprofile/uprofile))
+                # ENTER CONDITION over wind speed
+                #for i in range(len(vprofile)):
+                    #if np.sqrt(vprofile[i]**2+uprofile[i]**2) > 2 :                    
+                        #tmp[i] = 270-np.rad2deg(np.arctan(vprofile[i]/uprofile[i]))
+                    #else:
+                        #tmp[i] = np.NaN
+                all_vals[param]=270-np.rad2deg(np.arctan(vprofile/uprofile))
+                
+                
             elif param == "u_knt":
                 ugrid = ds.variables["U"][:]
                 all_vals[param] = ugrid[0, :, pi, pj]
@@ -102,7 +112,6 @@ class WRFDataset:
         vals = {}
         for param in params:
             vals[param] = np.zeros((size), dtype=float)
-            vals[param][:] = np.nan
 
         idx = 0
         for all_idx, hgt in enumerate(all_hgts):

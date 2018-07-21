@@ -24,7 +24,7 @@ def extract_stations():
             if station_id not in station_ids:
                 station_ids.append(station_id);
 
-                (sonde_data, station) = sonde_dataset.read_sonde(dirpath + "\\" + filename)
+                (sonde_data, station) = sonde_dataset.read_sonde(dirpath + "//" + filename)
 
                 stations[station.wmoid] = station
 

@@ -50,19 +50,39 @@ class BeitDaganSondeDataset:
         # convert to numpy arrays:
         hgts = np.zeros((size),dtype=float)
         vals = {}
+        
         for param in params:
             vals[param] = np.zeros((size), dtype=float)
             vals[param][:] = np.nan
-
+            
+            
         idx = 0
         for hgt in samples.iterkeys():
             if minh <= hgt <= maxh:
                 hgts[idx] = hgt
                 for param in params:
                     if param == 'u_knt':
-                        vals[param][idx] = samples[hgt]["wvel_knt"] * math.cos(math.radians(270-samples[hgt]["wdir_deg"]))
+                        if ( samples[hgt]["wvel_knt"] is None or samples[hgt]["wdir_deg"] is None):
+                            vals[param][idx] = None
+                        else:
+                            vals[param][idx] = samples[hgt]["wvel_knt"] * math.cos(math.radians(270-samples[hgt]["wdir_deg"]))
+                            
+                            
                     elif param == 'v_knt':
-                        vals[param][idx] = samples[hgt]["wvel_knt"] * math.sin(math.radians(270-samples[hgt]["wdir_deg"]))
+                        if ( samples[hgt]["wvel_knt"] is None or samples[hgt]["wdir_deg"] is None):
+                            vals[param][idx] = None
+                        else:
+                            vals[param][idx] = samples[hgt]["wvel_knt"] * math.sin(math.radians(270-samples[hgt]["wdir_deg"]))
+                            
+                            
+                            
+                    elif param == 'wdir_deg': # remove wind dir values when wind speed is < 1 m/s
+                        if (  samples[hgt]["wvel_knt"]  < 2 ):  
+                            vals[param][idx]   = None
+                                        
+                            
+                            
+                            
                     else:
                         vals[param][idx] = samples[hgt][param]
                 idx = idx+1
