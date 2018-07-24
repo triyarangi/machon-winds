@@ -123,9 +123,9 @@ class Iterator:
                 p1 = p1.interpolate(self.heights)
                 p2 = p2.interpolate(self.heights)
 
-                break
+                return self.heights, p1, p2, prev_date
 
             if self.curr_date > self.max_date:
                 raise StopIteration
 
-            return self.heights, p1, p2, prev_date
+

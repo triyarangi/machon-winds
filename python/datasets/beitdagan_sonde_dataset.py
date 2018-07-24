@@ -79,7 +79,8 @@ class BeitDaganSondeDataset:
                     elif param == 'wdir_deg': # remove wind dir values when wind speed is < 1 m/s
                         if (  samples[hgt]["wvel_knt"]  < 2 ):  
                             vals[param][idx]   = None
-                                        
+                        else:
+                            vals[param][idx] = samples[hgt][param]
                             
                             
                             
