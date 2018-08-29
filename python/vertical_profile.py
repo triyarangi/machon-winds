@@ -89,7 +89,7 @@ class VerticalProfile:
             if skip >= (len(self.heights)) * 0.75:
                 interpvals[param] = None
             else:
-                interpvals[param] = np.interp(levels_msl_m, self.heights, self.values[param],left=None, right=None)
+                interpvals[param] = np.interp(levels_msl_m, self.heights, self.values[param],left=np.nan, right=np.nan)
 
         return VerticalProfile(levels_msl_m, interpvals, self.station)
 

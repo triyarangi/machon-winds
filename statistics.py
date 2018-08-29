@@ -25,7 +25,7 @@ maxh = 25000
 # pick compared datasets:
 #
 # TODO: comparing sondes won't work, since they have variable size
-model_label = "WRF" # WRF; TODO: ECMWF doesn't work yet
+model_label = "ECMWF" # WRF; TODO: ECMWF doesn't work yet
 sonde_label = "HIRES" # LORES or HIRES
 
 # TODO: only those params are currently available:
@@ -33,8 +33,8 @@ params = ["wvel_knt", "wdir_deg", "u_knt", "v_knt"]
 # param = "wdir_deg"
 
 # date ranges:
-start_date = dt.datetime(2016, 07, 01,00,00)
-end_date   = dt.datetime(2016, 07, 01,00,00)
+start_date = dt.datetime(2016, 07, 20,00,00)
+end_date   = dt.datetime(2016, 07, 22,00,00)
 
 # output figs dir:
 outdir='/home/sigalit/Loon/v23_7_2018/machon-winds-master/'+str(wmoId)+'_'+sonde_label+start_date.strftime("%Y-%m-%d")+end_date.strftime("-%d")+'_statistics/'
