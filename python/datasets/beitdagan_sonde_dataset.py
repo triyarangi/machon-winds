@@ -65,14 +65,14 @@ class BeitDaganSondeDataset:
                         if ( samples[hgt]["wvel_knt"] is None or samples[hgt]["wdir_deg"] is None):
                             vals[param][idx] = None
                         else:
-                            vals[param][idx] = samples[hgt]["wvel_knt"] * math.cos(math.radians(270-samples[hgt]["wdir_deg"]))
+                            vals[param][idx] = -1.*samples[hgt]["wvel_knt"] * math.sin(math.radians(samples[hgt]["wdir_deg"]))
                             
                             
                     elif param == 'v_knt':
                         if ( samples[hgt]["wvel_knt"] is None or samples[hgt]["wdir_deg"] is None):
                             vals[param][idx] = None
                         else:
-                            vals[param][idx] = samples[hgt]["wvel_knt"] * math.sin(math.radians(270-samples[hgt]["wdir_deg"]))
+                            vals[param][idx] = -1.*samples[hgt]["wvel_knt"] * math.cos(math.radians(samples[hgt]["wdir_deg"]))
                             
                             
                             

@@ -1,5 +1,6 @@
 from collections import OrderedDict
 import numpy as np
+import scipy 
 ################################################
 # This class defines a vertical profile
 #
@@ -90,6 +91,6 @@ class VerticalProfile:
                 interpvals[param] = None
             else:
                 interpvals[param] = np.interp(levels_msl_m, self.heights, self.values[param],left=np.nan, right=np.nan)
-
+                
         return VerticalProfile(levels_msl_m, interpvals, self.station)
 

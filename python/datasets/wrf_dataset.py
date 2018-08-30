@@ -40,11 +40,11 @@ class WRFDataset:
         for ((n,i,j),val) in np.ndenumerate( lons ):
             self.indexer.add( lats[n,i,j], lons[n,i,j], i, j )
 
-    def get_station_profile(self, station, datetime, minh, maxh, param):
+    def get_station_profile(self, station, datetime, minh, maxh, param ):
 
         return self.get_profile( station.lat, station.lon, datetime, minh, maxh, param)
 
-    def get_profiles(self, stations, datetime, minh, maxh, param):
+    def get_profiles(self, stations, datetime, minh, maxh, param ):
 
         profiles = {}
         for station in stations:
@@ -87,7 +87,8 @@ class WRFDataset:
                         #tmp[i] = 270-np.rad2deg(np.arctan(vprofile[i]/uprofile[i]))
                     #else:
                         #tmp[i] = np.NaN
-                all_vals[param]=270-np.rad2deg(np.arctan(vprofile/uprofile))
+                
+                all_vals[param]=  (270. - ( np.arctan2(vprofile,uprofile)*(180./math.pi) ))%360. 
                 
                 
             elif param == "u_knt":
@@ -126,6 +127,6 @@ class WRFDataset:
         return VerticalProfile(hgts, vals, station)
 
     def create_filename(self, datetime):
-        return self.dataset_dir + "/" + datetime.strftime("%Y%m%d%H") \
-                + "/wrfout_d01_" + datetime.strftime("%Y-%m-%d") + "_00_00_00"
+        str_H="00"
+        return self.dataset_dir + "/" + datetime.strftime("%Y%m%d") +str_H  + "/wrfout_d01_" + datetime.strftime("%Y-%m-%d") + "_"+str_H +"_00_00"
 

@@ -6,7 +6,7 @@ import python.datasets.stations_list as stations_list
 import numpy as np
 
 import datetime as dt
-
+ 
 class ProfileDatabase:
 
     def __init__(self):
@@ -31,12 +31,12 @@ class ProfileDatabase:
 
         return hgts
 
-    def get_profile(self, dataset_label, station, datetime, minh, maxh, params):
+    def get_profile(self, dataset_label, station, datetime, minh, maxh, params ):
 
         try:
             #
             if "WRF" == dataset_label:
-                return self.wrf_dataset.get_station_profile( station, datetime, minh, maxh, params)
+                return self.wrf_dataset.get_station_profile( station, datetime, minh, maxh, params )
             elif "ECMWF" == dataset_label:
                 return self.ecmwf_dataset.get_station_profile( station, datetime, minh, maxh, params)
             elif "HIRES" == dataset_label:
@@ -85,7 +85,7 @@ class ProfileDataset:
 
 
 
-    def get_profile(self, datetime, station):
+    def get_profile(self, datetime, station ):
         return self.db.get_profile(self.dataset_label, station, datetime, self.minh, self.maxh, self.params)
 
     def get_profiles(self, datetime, stations):
@@ -113,8 +113,8 @@ class Iterator:
                 prev_date = self.curr_date
                 self.curr_date += dt.timedelta(1)
 
-                p1 = self.ds1.get_profile(prev_date, self.station)
-                p2 = self.ds2.get_profile(prev_date, self.station)
+                p1 = self.ds1.get_profile(prev_date, self.station )
+                p2 = self.ds2.get_profile(prev_date, self.station )
 
                 if p1 is None or p2 is None:
                     continue

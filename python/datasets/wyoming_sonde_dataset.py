@@ -47,7 +47,7 @@ class WyomingSondeDataset:
                         if  ( samples[hgt]["wdir_deg"] is None or samples[hgt]["wvel_knt"] is None ):
                             vals[param][idx] = None
                         else:
-                            vals[param][idx] = samples[hgt]["wvel_knt"] * math.cos(math.radians(270-samples[hgt]["wdir_deg"]))
+                            vals[param][idx] = -1.*samples[hgt]["wvel_knt"] * math.sin(math.radians(samples[hgt]["wdir_deg"]))
                             
                             
                             
@@ -55,7 +55,7 @@ class WyomingSondeDataset:
                         if (  samples[hgt]["wdir_deg"]   is None or samples[hgt]["wvel_knt"] is None   ):
                             vals[param][idx] = None
                         else:
-                            vals[param][idx] = samples[hgt]["wvel_knt"] * math.sin(math.radians(270-samples[hgt]["wdir_deg"]))
+                            vals[param][idx] = -1.*samples[hgt]["wvel_knt"] * math.cos(math.radians(samples[hgt]["wdir_deg"]))
                             
                     elif param == 'wdir_deg': # remove wind dir values when wind speed is < 1 m/s
                         if (  samples[hgt]["wvel_knt"]  < 2 ):  

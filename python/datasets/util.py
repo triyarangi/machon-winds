@@ -27,9 +27,9 @@ def daterange(start_date, end_date):
 
 
 def to_degrees(u, v):
-
-    return 270 - np.rad2deg(np.arctan(v / u))
-
+     import math
+     return (270. - ( np.arctan2(v,u)*(180./math.pi) ))%360.
+   
 def wrap_degrees(deg):
    if deg > +180: deg -= 360
    if deg < -180: deg += 360

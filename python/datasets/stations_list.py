@@ -43,5 +43,5 @@ def get_closest_station( lat, lon):
         if dist < min_dist or min_dist < 0:
             min_dist = dist
             closest_station = station
-
+    print 'station min_dist', closest_station , min_dist        
     return closest_station
