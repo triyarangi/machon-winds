@@ -24,7 +24,7 @@ def extract_stations():
             if station_id not in station_ids:
                 station_ids.append(station_id);
 
-                (sonde_data, station) = sonde_dataset.read_sonde(dirpath + "//" + filename)
+                (sonde_data, station) = sonde_dataset.read_sonde(dirpath + "/" + filename)
 
                 stations[station.wmoid] = station
 
@@ -43,5 +43,6 @@ def get_closest_station( lat, lon):
         if dist < min_dist or min_dist < 0:
             min_dist = dist
             closest_station = station
-    print 'station min_dist', closest_station , min_dist        
+    if(dist > 0.01) :
+        print 'STATION MIN_DIST closest station', closest_station , min_dist        
     return closest_station

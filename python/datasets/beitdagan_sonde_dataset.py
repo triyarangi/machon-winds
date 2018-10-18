@@ -61,6 +61,14 @@ class BeitDaganSondeDataset:
             if minh <= hgt <= maxh:
                 hgts[idx] = hgt
                 for param in params:
+                    
+                    if param == 'wvel_knt':
+                        if ( samples[hgt]["wvel_knt"] < 2 ):
+                            vals[param][idx] = None
+                        else:
+                            vals[param][idx] = samples[hgt]["wvel_knt"]  
+                    
+                    
                     if param == 'u_knt':
                         if ( samples[hgt]["wvel_knt"] is None or samples[hgt]["wdir_deg"] is None):
                             vals[param][idx] = None

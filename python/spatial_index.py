@@ -29,5 +29,5 @@ class SpatialIndex:
                 clat = p_lat
                 clon = p_lon
                 min_dist = dist
-
+        if min_dist > 0.01: print 'STATION MIN_DIST', min_dist,lat,clat,lon , clon
         return ci, cj, clat, clon

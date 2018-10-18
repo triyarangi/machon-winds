@@ -127,6 +127,6 @@ class WRFDataset:
         return VerticalProfile(hgts, vals, station)
 
     def create_filename(self, datetime):
-        str_H="00"
-        return self.dataset_dir + "/" + datetime.strftime("%Y%m%d") +str_H  + "/wrfout_d01_" + datetime.strftime("%Y-%m-%d") + "_"+str_H +"_00_00"
+       
+        return self.dataset_dir + "/" + datetime.strftime("%Y%m%d%H")   + "/wrfout_d01_" + datetime.strftime("%Y-%m-%d") + "_"+datetime.strftime("%H") +"_00_00"
 

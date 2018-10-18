@@ -53,25 +53,47 @@ class ECMWFDataset:
                 self.indexer.add( lat, lon, i, j )
 
     def get_profile(self, lat, lon, datetime, minh, maxh, params):
+        
+        # data file contains 1 day data from 0Z 
+        
+        if datetime.strftime("%H") == "00" : ind_h=0
+        if datetime.strftime("%H") == "12" : ind_h=3
+        
+       
+        
         path = self.create_filename( datetime )
         ds = python.datasets.util.load_dataset(path)
 
         (pi, pj, plat, plon) = self.indexer.get_closest_index(lat, lon)
 
         all_vals = {}
+        times =  ds.variables["initial_time0_hours"]
+        
+        #print 'initial time=', int(times[0])
+        
+        # make sure the initial time is 0Z 
+        # initial_time0_hours is hours from 1-1-1800 0Z
+        
+        if int(times[0]) % 24 != 0 :
+            print 'correct initial EC time'
+        else:
+            print str( int(times[0]) % 24 )+'hours from 0Z . WRONG initial time EC file'
+            
 
         for param in params:
             if param == "wvel_knt":
                 ugrid = ds.variables["UGRD_P0_L105_GLL0"][:]
                 vgrid = ds.variables["VGRD_P0_L105_GLL0"][:]
-                uprofile = ugrid[0, :, pi, pj][0]
-                vprofile = vgrid[0, :, pi, pj][0]
+                
+                # [0] - from 2 d array to 1d vector
+                uprofile = ugrid[ind_h, :, pi, pj][0]
+                vprofile = vgrid[ind_h, :, pi, pj][0]
                 all_vals[param] = (uprofile ** 2 + vprofile ** 2) ** 0.5 * 1.94384  # from m/s to knot
             elif param == "wdir_deg":
                 ugrid = ds.variables["UGRD_P0_L105_GLL0"][:]
                 vgrid = ds.variables["VGRD_P0_L105_GLL0"][:]
-                uprofile = ugrid[0, :, pi, pj][0]
-                vprofile = vgrid[0, :, pi, pj][0]
+                uprofile = ugrid[ind_h, :, pi, pj][0]
+                vprofile = vgrid[ind_h, :, pi, pj][0]
 
                 # TODO : verify this conversion
                 # ENTER CONDITION over wind speed
@@ -80,18 +102,18 @@ class ECMWFDataset:
                 # tmp[i] = 270-np.rad2deg(np.arctan(vprofile[i]/uprofile[i]))
                 # else:
                 # tmp[i] = np.NaN
-                all_vals[param] = 270 - np.rad2deg(np.arctan(vprofile / uprofile))
+                all_vals[param] = python.datasets.util.to_degrees(uprofile, vprofile) #:270 - np.rad2deg(np.arctan(vprofile / uprofile))
 
 
             elif param == "u_knt":
                 ugrid = ds.variables["UGRD_P0_L105_GLL0"][:]
-                all_vals[param] = ugrid[0, :, pi, pj][0]
+                all_vals[param] = ugrid[ind_h, :, pi, pj][0]
             elif param == "v_knt":
                 vgrid = ds.variables["VGRD_P0_L105_GLL0"][:]
-                all_vals[param] = vgrid[0, :, pi, pj][0]
+                all_vals[param] = vgrid[ind_h, :, pi, pj][0]
             else:
                 grid = ds.variables[param][:]
-                all_vals[param] = grid[0, :, pi, pj][0]
+                all_vals[param] = grid[ind_h, :, pi, pj][0]
 
         size = 0
         for hgt in self.all_hgts:
@@ -110,9 +132,9 @@ class ECMWFDataset:
                     vals[param][idx] = all_vals[param][all_idx]
                 idx = idx + 1
         for param in params:
-            vals[param] = np.flip(vals[param])
+            vals[param] = np.flip(vals[param],0)
 
-        hgts = np.flip(hgts)
+        hgts = np.flip(hgts,0)
         station = WeatherStation(-1, lat, lon, 0)
 
         return VerticalProfile(hgts, vals, station)
@@ -123,8 +145,7 @@ class ECMWFDataset:
 
 
     def create_filename(self, datetime):
-        return self.dataset_dir + "/" \
-                + "/IS_" + datetime.strftime("%Y%m_%#d") + ".nc"
+        return self.dataset_dir + "/" + "IS_" + datetime.strftime("%Y%m_%#d") + ".nc"
 
 
 

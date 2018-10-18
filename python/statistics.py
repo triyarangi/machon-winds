@@ -32,8 +32,8 @@ params = ["wvel_knt", "wdir_deg", "u_knt", "v_knt"]
 # param = "wdir_deg"
 
 # date ranges:
-start_date = dt.datetime(2016, 01, 20,00,00)
-end_date   = dt.datetime(2016, 01, 30,00,00)
+start_date = dt.datetime(2016, 07, 20,00,00)
+end_date   = dt.datetime(2016, 07, 30,00,00)
 
 # output figs dir:
 outdir='/home/sigalit/Loon/machon-winds-master/'+str(wmoId)+'_'+sonde_label+'_Apr_2016_statistics/'

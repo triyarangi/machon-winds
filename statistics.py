@@ -16,28 +16,28 @@ import python.datasets.util as util
 # parameters:
 
 # no of radiosonde:
-wmoId = 40179
+wmoId = 40875
 station = stations_list.stations[wmoId]
 stations = [ station ]
-minh = 9000
-maxh = 25000
+minh = 16000
+maxh = 26000
 
 # pick compared datasets:
-#
+# 3/10/2018 ECMWF EUROPE z levels from 16 km
 # TODO: comparing sondes won't work, since they have variable size
-model_label = "WRF" # WRF; TODO: ECMWF doesn't work yet
-sonde_label = "HIRES" # LORES or HIRES
+model_label = "ECMWF" # WRF; TODO: ECMWF doesn't work yet
+sonde_label = "LORES" # LORES or HIRES
 
 # TODO: only those params are currently available:
 params = ["wvel_knt", "wdir_deg", "u_knt", "v_knt"]
 # param = "wdir_deg"
-str_H="00"
-# date ranges:
-start_date = dt.datetime(2017, 1, 1,00,00)
-end_date   = dt.datetime(2017, 1, 30,00,00)
 
+# date ranges:
+start_date = dt.datetime(2016, 7, 1,12,00)
+end_date   = dt.datetime(2016, 7, 1,12,00)
+str_H=end_date.strftime("%H")
 # output figs dir:
-outdir='/home/sigalit/Loon/v25_7_2018/machon-winds-master/'+str(wmoId)+'_'+sonde_label+start_date.strftime("%Y-%m-%d")+end_date.strftime("-%m-%d")+'_statistics/'
+outdir='/home/sigalit/Loon/v_Oct_2018/machon-winds-master/'+str(model_label)+str(wmoId)+'_'+sonde_label+start_date.strftime("%Y-%m-%d")+end_date.strftime("-%m-%d-%H")+'_statistics/'
  
 if not os.path.exists(outdir):
     os.makedirs(outdir)
@@ -156,7 +156,7 @@ for (heights, model, sonde, curr_date) in profiles.values():
         for ix in range(len(heights)):
             if (not np.isnan(delta[ix])): count[param][ix] += 1
             if (np.isnan(delta[ix])): delta[ix] = 0  # delta = 0 , do not increase number of events
-        print count[param]
+        #print count[param]
 
         bias[param] += delta
         
@@ -181,7 +181,7 @@ for param in params:
             if count_sonde[param][ix] != 0 :
                 sonde_mean[param][ix] /= count_sonde[param][ix]
     
-    print sonde_mean[param]        
+    #print sonde_mean[param]        
     for ix in range(len(heights)):       
         if count[param][ix] != 0 :     
             bias[param][ix] /= count[param][ix]
@@ -199,7 +199,7 @@ model_mean["wdir_deg"] = util.to_degrees(model_mean["u_knt"],model_mean["v_knt"]
 for ix in range(len(heights)): 
     if(not np.isnan(sonde_mean["u_knt"][ix])  ):
         sonde_mean["wdir_deg"][ix] = util.to_degrees(sonde_mean["u_knt"][ix],sonde_mean["v_knt"][ix])
-print sonde_mean["wdir_deg"]
+#print sonde_mean["wdir_deg"]
     
     
 ####################################################
@@ -229,7 +229,7 @@ for (heights, model, sonde, curr_date) in profiles.values():
                 if sonde_mean[param][ix] is not np.nan and sonde_values[ix] is not np.nan:   
                     sonde_delta[param][ix] = util.to_degrees(sonde_mean["u_knt"][ix], sonde_mean["v_knt"][ix]) \
                     -   util.to_degrees(sonde.values["u_knt"][ix], sonde.values["v_knt"][ix])
-                print sonde_delta[param][ix] 
+                #print sonde_delta[param][ix] 
 
             for ix in range(len(heights)):
                 if np.isnan(model_delta[param][ix]) :  
@@ -306,9 +306,12 @@ for idx in range(len(bias["wvel_knt"])):
 
 # dont display edges of interpolation results
     # suffer from low number of points
-    # radiosonde dont have a lot of points at the higher levels 20-24 km
+    # radiosonde dont have a lot of points at the higher levels 20-24 km 
+    # therefore nf=len(heights)-2
+    # draw from index 2 , eg mae[draw_param][2: nf]
+    #
 for draw_param in ["wdir_deg","wvel_knt","u_knt","v_knt"]:
-    title = "Errors for %s to %s , station %s" % (start_date, end_date , station.wmoid)
+    title = "%s Errors for %s to %s , station %s" % (model_label, start_date, end_date , station.wmoid)
     nf=len(heights)-2
     plot_profile(
         VerticalProfile(heights[2:nf],{
@@ -321,7 +324,7 @@ for draw_param in ["wdir_deg","wvel_knt","u_knt","v_knt"]:
         outdir, title)
     # save figure
 
-    title = "Means for %s to %s, station %s" % (start_date, end_date, station.wmoid)
+    title = "%s Means for %s to %s, station %s" % (model_label,start_date, end_date, station.wmoid)
     plot_profile(
         VerticalProfile(heights[2: nf], {
            draw_param + " model mean": model_mean[draw_param][2: nf],
@@ -329,11 +332,11 @@ for draw_param in ["wdir_deg","wvel_knt","u_knt","v_knt"]:
         }, station),
         None, outdir, title)
 
-    title = "Variance for %s to %s, station %s" % (start_date, end_date, station.wmoid)
+    title = "%s Variance for %s to %s, station %s" % (model_label, start_date, end_date, station.wmoid)
     plot_profile(
         VerticalProfile(heights[2: nf], {
-           draw_param + " model variance": model_var[draw_param][2: nf],
-           draw_param + " sonde variance": sonde_var[draw_param][2: nf]
+           draw_param + " sonde variance": sonde_var[draw_param][2: nf],
+           draw_param + " model variance": model_var[draw_param][2: nf]
         }, station),
         None, outdir, title)
 
