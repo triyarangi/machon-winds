@@ -43,8 +43,8 @@ class ECMWFDataset:
             self.all_hgts[i] = altitudes[z]
 
         # create map of WRF points:
-        lons = sample_ds.variables['lat_0'][:]
-        lats = sample_ds.variables['lon_0'][:]
+        lons = sample_ds.variables['lon_0'][:]
+        lats = sample_ds.variables['lat_0'][:]
 
         self.indexer = SpatialIndex()
 
@@ -75,9 +75,7 @@ class ECMWFDataset:
         # initial_time0_hours is hours from 1-1-1800 0Z
         
         if int(times[0]) % 24 != 0 :
-            print 'correct initial EC time'
-        else:
-            print str( int(times[0]) % 24 )+'hours from 0Z . WRONG initial time EC file'
+            print 'WRONG initial EC time'+str( int(times[0]) % 24 )+'hours from 0Z '
             
 
         for param in params:
@@ -86,14 +84,14 @@ class ECMWFDataset:
                 vgrid = ds.variables["VGRD_P0_L105_GLL0"][:]
                 
                 # [0] - from 2 d array to 1d vector
-                uprofile = ugrid[ind_h, :, pi, pj][0]
-                vprofile = vgrid[ind_h, :, pi, pj][0]
+                uprofile = ugrid[ind_h, :, pj, pi][0]
+                vprofile = vgrid[ind_h, :, pj, pi][0]
                 all_vals[param] = (uprofile ** 2 + vprofile ** 2) ** 0.5 * 1.94384  # from m/s to knot
             elif param == "wdir_deg":
                 ugrid = ds.variables["UGRD_P0_L105_GLL0"][:]
                 vgrid = ds.variables["VGRD_P0_L105_GLL0"][:]
-                uprofile = ugrid[ind_h, :, pi, pj][0]
-                vprofile = vgrid[ind_h, :, pi, pj][0]
+                uprofile = ugrid[ind_h, :, pj, pi][0]
+                vprofile = vgrid[ind_h, :, pj, pi][0]
 
                 # TODO : verify this conversion
                 # ENTER CONDITION over wind speed
@@ -107,13 +105,13 @@ class ECMWFDataset:
 
             elif param == "u_knt":
                 ugrid = ds.variables["UGRD_P0_L105_GLL0"][:]
-                all_vals[param] = ugrid[ind_h, :, pi, pj][0]
+                all_vals[param] = ugrid[ind_h, :, pj, pi][0]
             elif param == "v_knt":
                 vgrid = ds.variables["VGRD_P0_L105_GLL0"][:]
-                all_vals[param] = vgrid[ind_h, :, pi, pj][0]
+                all_vals[param] = vgrid[ind_h, :, pj, pi][0]
             else:
                 grid = ds.variables[param][:]
-                all_vals[param] = grid[ind_h, :, pi, pj][0]
+                all_vals[param] = grid[ind_h, :, pj, pi][0]
 
         size = 0
         for hgt in self.all_hgts:

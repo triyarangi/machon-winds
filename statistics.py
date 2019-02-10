@@ -15,8 +15,8 @@ import python.datasets.util as util
 
 # parameters:
 
-# no of radiosonde:
-wmoId = 40875
+# no of radiosonde: BD 40179
+wmoId = 40179
 station = stations_list.stations[wmoId]
 stations = [ station ]
 minh = 16000
@@ -26,7 +26,7 @@ maxh = 26000
 # 3/10/2018 ECMWF EUROPE z levels from 16 km
 # TODO: comparing sondes won't work, since they have variable size
 model_label = "ECMWF" # WRF; TODO: ECMWF doesn't work yet
-sonde_label = "LORES" # LORES or HIRES
+sonde_label = "HIRES" # LORES or HIRES
 
 # TODO: only those params are currently available:
 params = ["wvel_knt", "wdir_deg", "u_knt", "v_knt"]
@@ -34,7 +34,7 @@ params = ["wvel_knt", "wdir_deg", "u_knt", "v_knt"]
 
 # date ranges:
 start_date = dt.datetime(2016, 7, 1,12,00)
-end_date   = dt.datetime(2016, 7, 1,12,00)
+end_date   = dt.datetime(2016, 7, 30,12,00)
 str_H=end_date.strftime("%H")
 # output figs dir:
 outdir='/home/sigalit/Loon/v_Oct_2018/machon-winds-master/'+str(model_label)+str(wmoId)+'_'+sonde_label+start_date.strftime("%Y-%m-%d")+end_date.strftime("-%m-%d-%H")+'_statistics/'
